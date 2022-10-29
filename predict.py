@@ -1,30 +1,20 @@
 import argparse
-
-from func_utils import process_image, load_map, predict_image
-
-def make_parser():
-    parser = argparse.ArgumentParser(description="Predict an Image.")
-
-    parser.add_argument('dir', type=str)
-    parser.add_argument('model', type=str)
-
-    parser.add_argument('--top_k', type=int, default="5",
-                        help="Return the top KK most likely classes.")
-    parser.add_argument('--category_names', type=str, default="label_map.json",
-                        help="Path to a JSON file mapping labels to flower names")
-
-    return parser
-
-def main():
-    parser = make_parser()
-    args = parser.parse_args()
-
-    top_k_prob , top_k_classes, tok_k_class_names = \
-        predict_image(args.dir, args.model, args.top_k, args.category_names)
-
-    print(top_k_prob)
-    print(top_k_classes)
-    print(top_k_class_names)
+import tensorflow as tf
+import tensorflow_hub as hub
+from func_utils import predict_image
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='image classifier')
+    parser.add_argument('image_path')
+    parser.add_argument('saved_model')
+    parser.add_argument('--top_k', dest="top_k", type=int, default="5")
+    parser.add_argument('--category_names', dest="category_names", default="label_map.json")
+    args = parser.parse_args()
+    
+    model = tf.keras.models.load_model(args.saved_model, custom_objects={'KerasLayer':hub.KerasLayer}, compile=False)
+
+    top_k_probs , top_k_classes, top_k_names = predict_image(args.image_path, model, args.top_k, args.category_names)
+
+    print(top_k_probs)
+    print(top_k_classes)
+    print(top_k_names)
