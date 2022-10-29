@@ -1,6 +1,6 @@
 import argparse
 
-from func_utils import process_image, predict_image
+from func_utils import process_image, load_map, predict_image
 
 def make_parser():
     parser = argparse.ArgumentParser(description="Predict an Image.")
